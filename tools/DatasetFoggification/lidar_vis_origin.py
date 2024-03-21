@@ -17,7 +17,7 @@ def load_velo_scan(file):
     """Load and parse a velodyne binary file. According to Kitti Dataset"""
     scan = np.fromfile(file, dtype=np.float32)
     #return scan.reshape((-1, 5))[:,0:4]
-    scan = scan.reshape((-1, 5))
+    scan = scan.reshape((-1, 4))
     #scan = scan[:, :3]
     return scan # from kitti
 
@@ -25,8 +25,8 @@ def load_velo_scan(file):
 def parsArgs():
     parser = argparse.ArgumentParser(description='Lidar Fog Simulation Filename')
     parser.add_argument('--root', '-r', help='Enter the root folder', default='./example_data/')
-    parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='hazing/velodyne_points_beta0.05000')
-    #parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='LidarData')
+    #parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='hazing/velodyne_points_beta0.05000')
+    parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='LidarData')
     parser.add_argument('--beta', '-b', type=float, help='Enter the fogdensity beta here', default=0.05)
     parser.add_argument('--fraction_random', type=float, default=0.05, help ='Enter fraction of random scattered points')
     parser.add_argument('--sensor_type', type=str, default='VelodyneHDLS3D', help='chose sensor type either "VelodyneHDLS3D" or VelodyneHDLS2')

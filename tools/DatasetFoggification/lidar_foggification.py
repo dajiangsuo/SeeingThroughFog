@@ -4,6 +4,8 @@ import time
 
 import numpy as np
 import pyqtgraph.opengl as gl
+from pyqtgraph import Vector
+
 from beta_modification import BetaRadomization
 from pyqtgraph.Qt import QtGui
 
@@ -14,7 +16,10 @@ from pyqtgraph.Qt import QtGui
 def load_velo_scan(file):
     """Load and parse a velodyne binary file. According to Kitti Dataset"""
     scan = np.fromfile(file, dtype=np.float32)
-    return scan.reshape((-1, 5))[:,0:4]
+    #return scan.reshape((-1, 5))[:,0:4]
+    scan = scan.reshape((-1, 4))
+    #scan = scan[:, :3]
+    return scan # from kitti
 
 
 def parsArgs():
@@ -151,7 +156,9 @@ def main(walk_path, dest_path, beta, args, DEBUG = True):
         w.show()
         w.setWindowTitle('Velodyne Pointlcloud')
         #     86.8051380062 273 - 59
-        w.setCameraPosition(pos=[0,0,0], distance=86.8051380062, azimuth=180, elevation=40)
+        #w.setCameraPosition(pos=[0,0,0], distance=86.8051380062, azimuth=180, elevation=40)
+        w.setCameraPosition(pos=Vector(0, 0, 0), distance=86.8051380062, azimuth=180, elevation=40)
+
 
     #g = gl.GLGridItem()
     #w.addItem(g)
@@ -172,10 +179,10 @@ def main(walk_path, dest_path, beta, args, DEBUG = True):
         if DEBUG:
             pass
             color = set_color(dist_pts_3d)
-            if color is None:
-                plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3)
-            else:
-                plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3, color=color)
+            #if color is None:
+            plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3)
+            #else:
+            #    plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3, color=color)
             w.addItem(plot)
             w.update()
             w.show()

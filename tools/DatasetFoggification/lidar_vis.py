@@ -17,7 +17,7 @@ def load_velo_scan(file):
     """Load and parse a velodyne binary file. According to Kitti Dataset"""
     scan = np.fromfile(file, dtype=np.float32)
     #return scan.reshape((-1, 5))[:,0:4]
-    scan = scan.reshape((-1, 4))
+    scan = scan.reshape((-1, 5))
     #scan = scan[:, :3]
     return scan # from kitti
 
@@ -25,7 +25,8 @@ def load_velo_scan(file):
 def parsArgs():
     parser = argparse.ArgumentParser(description='Lidar Fog Simulation Filename')
     parser.add_argument('--root', '-r', help='Enter the root folder', default='./example_data/')
-    parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='LidarData')
+    parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='hazing/velodyne_points_beta0.05000')
+    #parser.add_argument('--velodyne_folder', '-v', help='Data folder Velodyne', default='LidarData')
     parser.add_argument('--beta', '-b', type=float, help='Enter the fogdensity beta here', default=0.05)
     parser.add_argument('--fraction_random', type=float, default=0.05, help ='Enter fraction of random scattered points')
     parser.add_argument('--sensor_type', type=str, default='VelodyneHDLS3D', help='chose sensor type either "VelodyneHDLS3D" or VelodyneHDLS2')
@@ -36,7 +37,7 @@ def parsArgs():
 
     return args
 
-
+"""
 def haze_point_cloud(pts_3D, Radomized_beta, args):
     #print 'minmax_values', max(pts_3D[:, 0]), max(pts_3D[:, 1]), min(pts_3D[:, 1]), max(pts_3D[:, 2]), min(pts_3D[:, 2])
     n = []
@@ -115,7 +116,7 @@ def haze_point_cloud(pts_3D, Radomized_beta, args):
 
     color = []
     return dist_pts_3d, color
-
+"""
 
 def initialize_window():
     w= None
@@ -139,7 +140,7 @@ def set_color(dist_pts_3d):
 
 
 
-def main(walk_path, dest_path, beta, args, DEBUG = True):
+def main(walk_path, beta, args, DEBUG = True):
     #os.path.join(root_in, folder)
     print(walk_path)
     files_all = []
@@ -148,7 +149,8 @@ def main(walk_path, dest_path, beta, args, DEBUG = True):
         assert(root==walk_path)
         files_all = sorted(files)
     print(files_all)
-    if DEBUG:
+    VIS = True
+    if VIS:
         w = initialize_window()
 
         app = QtGui.QApplication([])
@@ -165,22 +167,22 @@ def main(walk_path, dest_path, beta, args, DEBUG = True):
     boxes = []
 
     for i in range(0, len(files_all)):
-        B = BetaRadomization(beta)
-        B.propagate_in_time(10)
+        #B = BetaRadomization(beta)
+        #B.propagate_in_time(10)
         file1 = files_all[i]
         print(os.path.join(walk_path,  file1))
         velodyne_scan = load_velo_scan(os.path.join(walk_path, file1))
         velodyne_scan[:,3] = velodyne_scan[:,3]/255
-        start = time.time()
-        dist_pts_3d, color = haze_point_cloud(velodyne_scan, B, args)
-        end = time.time()
-        print('elapsed_time', end - start)
+        #start = time.time()
+        #dist_pts_3d, color = haze_point_cloud(velodyne_scan, B, args)
+        #end = time.time()
+        #print('elapsed_time', end - start)
 
-        if DEBUG:
-            pass
-            color = set_color(dist_pts_3d)
+        if VIS:
+            #pass
+            #color = set_color(dist_pts_3d)
             #if color is None:
-            plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3)
+            plot = gl.GLScatterPlotItem(pos=velodyne_scan[:,0:3], size=3)
             #else:
             #    plot = gl.GLScatterPlotItem(pos=dist_pts_3d[:,0:3], size=3, color=color)
             w.addItem(plot)
@@ -193,23 +195,23 @@ def main(walk_path, dest_path, beta, args, DEBUG = True):
             print('viewing coordinates', w.opts['distance'], w.opts['azimuth'], w.opts['elevation'])
 
         #Update position in time
-        B.propagate_in_time(5)
-        save_path_velo = os.path.join(dest_path, file1)
-        dist_pts_3d.astype(np.float32).tofile(save_path_velo)
+        #B.propagate_in_time(5)
+        #save_path_velo = os.path.join(dest_path, file1)
+        #dist_pts_3d.astype(np.float32).tofile(save_path_velo)
 
 
 if __name__ == '__main__':
 
     args = parsArgs()
-    args.destination_folder ='hazing/velodyne_points_beta%.5f'%args.beta
+    #args.destination_folder ='hazing/velodyne_points_beta%.5f'%args.beta
     walk_path = os.path.join(args.root, args.velodyne_folder)
-    dest_folder = os.path.join(args.root, args.destination_folder)
-    print(walk_path, args.beta)
-    print(dest_folder, args.beta)
-    if not os.path.exists(dest_folder):
-        os.makedirs(dest_folder)
-    print('started')
-    main(walk_path, dest_folder, beta=args.beta, args=args, DEBUG=True)
+    #dest_folder = os.path.join(args.root, args.destination_folder)
+    #print(walk_path, args.beta)
+    #print(dest_folder, args.beta)
+    #if not os.path.exists(dest_folder):
+    #    os.makedirs(dest_folder)
+    #print('started')
+    main(walk_path, beta=args.beta, args=args, DEBUG=True)
 
 
 
